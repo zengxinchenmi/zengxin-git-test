@@ -109,6 +109,8 @@ public class InterestInfoController extends BaseController
         return toAjax(interestInfoService.updateInterestInfo(interestInfo));
     }
 
+    /**搞一个测试玩一玩*/
+
     /**
      * 删除学生兴趣管理
      */
