@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.StudentInterestMapper">
+    
+    <resultMap type="StudentInterest" id="StudentInterestResult">
+        <result property="intSid"    column="int_sid"    />
+        <result property="intInterest"    column="int_interest"    />
+        <result property="fstusid"    column="fstusid"    />
+        <result property="spxh"    column="spxh"    />
+    </resultMap>
+
+    <sql id="selectStudentInterestVo">
+        select int_sid, int_interest, fstusid, spxh from stu_interest
+    </sql>
+
+    <select id="selectStudentInterestList" parameterType="StudentInterest" resultMap="StudentInterestResult">
+        <include refid="selectStudentInterestVo"/>
+        <where>  
+            <if test="intInterest != null  and intInterest != ''"> and int_interest = #{intInterest}</if>
+            <if test="fstusid != null  and fstusid != ''"> and fstusid = #{fstusid}</if>
+            <if test="spxh != null  and spxh != ''"> and spxh = #{spxh}</if>
+        </where>
+    </select>
+    
+    <select id="selectStudentInterestById" parameterType="String" resultMap="StudentInterestResult">
+        <include refid="selectStudentInterestVo"/>
+        where int_sid = #{intSid}
+    </select>
+        
+    <insert id="insertStudentInterest" parameterType="StudentInterest">
+        insert into stu_interest
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="intSid != null">int_sid,</if>
+            <if test="intInterest != null">int_interest,</if>
+            <if test="fstusid != null">fstusid,</if>
+            <if test="spxh != null">spxh,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="intSid != null">#{intSid},</if>
+            <if test="intInterest != null">#{intInterest},</if>
+            <if test="fstusid != null">#{fstusid},</if>
+            <if test="spxh != null">#{spxh},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStudentInterest" parameterType="StudentInterest">
+        update stu_interest
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="intInterest != null">int_interest = #{intInterest},</if>
+            <if test="fstusid != null">fstusid = #{fstusid},</if>
+            <if test="spxh != null">spxh = #{spxh},</if>
+        </trim>
+        where int_sid = #{intSid}
+    </update>
+
+    <delete id="deleteStudentInterestById" parameterType="String">
+        delete from stu_interest where int_sid = #{intSid}
+    </delete>
+
+    <delete id="deleteStudentInterestByIds" parameterType="String">
+        delete from stu_interest where int_sid in 
+        <foreach item="intSid" collection="array" open="(" separator="," close=")">
+            #{intSid}
+        </foreach>
+    </delete>
+
+    <insert id="batchStudentInterest">
+        insert into stu_interest(int_sid, fstusid, int_interest) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.intSid},#{item.fstusid},#{item.intInterest})
+        </foreach>
+    </insert>
+
+    <delete id="deleteStudentInterestByStudentId" parameterType="string">
+        delete from stu_interest where fstusid = #{studentId}
+    </delete>
+
+</mapper>

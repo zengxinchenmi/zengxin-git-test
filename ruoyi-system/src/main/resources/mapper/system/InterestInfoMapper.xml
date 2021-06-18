@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.InterestInfoMapper">
+    
+    <resultMap type="InterestInfo" id="InterestInfoResult">
+        <result property="interestId"    column="interest_id"    />
+        <result property="interestBh"    column="interest_bh"    />
+        <result property="interestName"    column="interest_name"    />
+    </resultMap>
+
+    <sql id="selectInterestInfoVo">
+        select interest_id, interest_bh, interest_name
+        from interest i
+        left join stu_interest si on si.int_interest = i.interest_id
+        left join chstu s on si.fstusid = s.chstu_sid
+    </sql>
+
+    <select id="selectInterestInfoList" parameterType="InterestInfo" resultMap="InterestInfoResult">
+        <include refid="selectInterestInfoVo"/>
+        <where>  
+            <if test="interestBh != null  and interestBh != ''"> and i.interest_bh = #{interestBh}</if>
+            <if test="interestName != null  and interestName != ''"> and i.interest_name like concat('%', #{interestName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectInterestInfoById" parameterType="Long" resultMap="InterestInfoResult">
+        <include refid="selectInterestInfoVo"/>
+        where i.interest_id = #{interestId}
+    </select>
+
+    <select id="selectInterestsByStudentId" parameterType="string" resultMap="InterestInfoResult">
+        <include refid="selectInterestInfoVo"/>
+        WHERE si.fstusid = #{studentId}
+    </select>
+        
+    <insert id="insertInterestInfo" parameterType="InterestInfo" useGeneratedKeys="true" keyProperty="interestId">
+        insert into interest
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="interestBh != null">interest_bh,</if>
+            <if test="interestName != null">interest_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="interestBh != null">#{interestBh},</if>
+            <if test="interestName != null">#{interestName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateInterestInfo" parameterType="InterestInfo">
+        update interest
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="interestBh != null">interest_bh = #{interestBh},</if>
+            <if test="interestName != null">interest_name = #{interestName},</if>
+        </trim>
+        where interest_id = #{interestId}
+    </update>
+
+    <delete id="deleteInterestInfoById" parameterType="Long">
+        delete from interest where interest_id = #{interestId}
+    </delete>
+
+    <delete id="deleteInterestInfoByIds" parameterType="String">
+        delete from interest where interest_id in 
+        <foreach item="interestId" collection="array" open="(" separator="," close=")">
+            #{interestId}
+        </foreach>
+    </delete>
+
+</mapper>

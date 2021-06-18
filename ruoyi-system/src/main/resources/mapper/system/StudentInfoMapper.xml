@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.StudentInfoMapper">
+    
+    <resultMap type="StudentInfo" id="StudentInfoResult">
+        <result property="chstuSid"    column="chstu_sid"    />
+        <result property="chstuSname"    column="chstu_sname"    />
+        <result property="chstuSex"    column="chstu_sex"    />
+        <result property="chstuAge"    column="chstu_age"    />
+        <collection  property="infos"   javaType="java.util.List"  resultMap="InfoResult" />
+    </resultMap>
+
+    <resultMap id="InfoResult" type="InterestInfo">
+        <result property="interestId"    column="interest_id"    />
+        <result property="interestBh"    column="interest_bh"    />
+        <result property="interestName"    column="interest_name"    />
+    </resultMap>
+
+    <sql id="selectStudentInfoVo">
+        select s.chstu_sid, s.chstu_sname, s.chstu_sex, s.chstu_age,
+        i.interest_id, i.interest_bh, i.interest_name
+        from chstu s
+        left join stu_interest si on s.chstu_sid = si.fstusid
+        left join interest i on si.int_interest = i.interest_id
+    </sql>
+
+    <select id="selectStudentInfoList" parameterType="StudentInfo" resultMap="StudentInfoResult">
+        <include refid="selectStudentInfoVo"/>
+        <where>  
+            <if test="chstuSname != null  and chstuSname != ''"> and s.chstu_sname like concat('%', #{chstuSname}, '%')</if>
+            <if test="chstuSex != null  and chstuSex != ''"> and s.chstu_sex = #{chstuSex}</if>
+            <if test="chstuAge != null  and chstuAge != ''"> and s.chstu_age = #{chstuAge}</if>
+        </where>
+    </select>
+    
+    <select id="selectStudentInfoById" parameterType="String" resultMap="StudentInfoResult">
+        <include refid="selectStudentInfoVo"/>
+        where s.chstu_sid = #{chstuSid}
+    </select>
+        
+    <insert id="insertStudentInfo" parameterType="StudentInfo">
+        insert into chstu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="chstuSid != null">chstu_sid,</if>
+            <if test="chstuSname != null">chstu_sname,</if>
+            <if test="chstuSex != null">chstu_sex,</if>
+            <if test="chstuAge != null">chstu_age,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="chstuSid != null">#{chstuSid},</if>
+            <if test="chstuSname != null">#{chstuSname},</if>
+            <if test="chstuSex != null">#{chstuSex},</if>
+            <if test="chstuAge != null">#{chstuAge},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStudentInfo" parameterType="StudentInfo">
+        update chstu
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="chstuSname != null">chstu_sname = #{chstuSname},</if>
+            <if test="chstuSex != null">chstu_sex = #{chstuSex},</if>
+            <if test="chstuAge != null">chstu_age = #{chstuAge},</if>
+        </trim>
+        where chstu_sid = #{chstuSid}
+    </update>
+
+    <delete id="deleteStudentInfoById" parameterType="String">
+        delete from chstu where chstu_sid = #{chstuSid}
+    </delete>
+
+    <delete id="deleteStudentInfoByIds" parameterType="String">
+        delete from chstu where chstu_sid in 
+        <foreach item="chstuSid" collection="array" open="(" separator="," close=")">
+            #{chstuSid}
+        </foreach>
+    </delete>
+
+</mapper>
